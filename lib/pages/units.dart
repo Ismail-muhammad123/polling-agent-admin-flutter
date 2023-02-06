@@ -1,3 +1,5 @@
+import 'package:admin/widgets/pollingUnitsForm.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class PolingUnitsPage extends StatefulWidget {
@@ -12,90 +14,158 @@ class _PolingUnitsPageState extends State<PolingUnitsPage> {
     fontSize: 17,
     fontWeight: FontWeight.w600,
   );
+
+  final _pollingUnitsStream =
+      FirebaseFirestore.instance.collection("polling_units").snapshots();
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  "List of Poling Units".toUpperCase(),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async => await showDialog(
+          context: context,
+          builder: (context) {
+            return const PollingUnitForm();
+          },
+        ),
+        child: const Icon(Icons.add),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    "List of Poling Units".toUpperCase(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Flexible(
-            child: Container(
-              width: double.maxFinite,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
+                ],
               ),
-              child: SingleChildScrollView(
-                child: DataTable(
-                  columns: [
-                    DataColumn(
-                      label: Text(
-                        "Ward Name",
-                        style: _tableHeadingStyle,
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        "Poling Units",
-                        style: _tableHeadingStyle,
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        "Agent Assigned",
-                        style: _tableHeadingStyle,
-                      ),
-                    ),
-                    DataColumn(
-                      label: Text(
-                        "Action",
-                        style: _tableHeadingStyle,
-                      ),
-                    ),
-                  ],
-                  rows: [
-                    ...List.generate(
-                      111,
-                      (index) => DataRow(
-                        cells: [
-                          DataCell(
-                            Text("Chedi"),
+            ),
+            Flexible(
+              child: Container(
+                width: double.maxFinite,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: SingleChildScrollView(
+                  child: StreamBuilder(
+                    stream: _pollingUnitsStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (!snapshot.hasData) {
+                        return const Center(
+                          child: Text("Error"),
+                        );
+                      }
+                      return DataTable(
+                        columns: [
+                          DataColumn(
+                            label: Text(
+                              "Polling Unit Name",
+                              style: _tableHeadingStyle,
+                            ),
                           ),
-                          DataCell(
-                            Text("350"),
+                          DataColumn(
+                            label: Text(
+                              "Ward",
+                              style: _tableHeadingStyle,
+                            ),
                           ),
-                          DataCell(
-                            Text("Ismail Muhammad"),
+                          DataColumn(
+                            label: Text(
+                              "Assigned Agent Name",
+                              style: _tableHeadingStyle,
+                            ),
                           ),
-                          DataCell(
-                            IconButton(
-                              onPressed: () {},
-                              icon: Icon(Icons.edit),
+                          DataColumn(
+                            label: Text(
+                              "Action",
+                              style: _tableHeadingStyle,
                             ),
                           ),
                         ],
-                      ),
-                    )
-                  ],
+                        rows: snapshot.data!.docs
+                            .map(
+                              (e) => DataRow(
+                                cells: [
+                                  DataCell(
+                                    Text(e.data()['name']),
+                                  ),
+                                  DataCell(
+                                    StreamBuilder(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('Wards')
+                                          .doc(e.data()['ward'])
+                                          .snapshots(),
+                                      builder: (context, snapshot) {
+                                        if (!snapshot.hasData) {
+                                          return Text("...");
+                                        }
+                                        return Text(
+                                            snapshot.data!.data()!['name']);
+                                      },
+                                    ),
+                                  ),
+                                  DataCell(
+                                    StreamBuilder(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('Profile')
+                                          .where(
+                                            'assigned_polling_unit',
+                                            isEqualTo: e.id,
+                                          )
+                                          .snapshots(),
+                                      builder: (context, snapshot) {
+                                        if (!snapshot.hasData) {
+                                          return const Text("...");
+                                        }
+                                        if (snapshot.data!.docs.isEmpty) {
+                                          return const Text("-");
+                                        }
+                                        return Text(snapshot.data!.docs.first
+                                            .data()['full_name']);
+                                      },
+                                    ),
+                                  ),
+                                  DataCell(
+                                    IconButton(
+                                      onPressed: () async => await showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return PollingUnitForm(
+                                            pollingUnitName: e.data()['name'],
+                                            pollingUnitId: e.id,
+                                            ward: e.data()['ward'],
+                                          );
+                                        },
+                                      ),
+                                      icon: const Icon(Icons.edit),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                            .toList(),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

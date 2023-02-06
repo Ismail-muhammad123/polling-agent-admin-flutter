@@ -1,4 +1,5 @@
 import 'package:admin/pages/home.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreenPage extends StatefulWidget {
@@ -10,6 +11,7 @@ class SplashScreenPage extends StatefulWidget {
 
 class _SplashScreenPageState extends State<SplashScreenPage> {
   bool _loading = false;
+  String errorText = "";
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
@@ -19,6 +21,32 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
     _passwordController.dispose();
     super.dispose();
   }
+
+  FirebaseAuth auth = FirebaseAuth.instance;
+
+  _login() async {}
+
+  // _listenForUser() async {
+  //   FirebaseAuth.instance.idTokenChanges().listen((User? user) {
+  //     if (user == null) {
+  //       setState(() {
+  //         _loading = false;
+  //       });
+  //     } else {
+  //       Navigator.of(context).pushReplacement(
+  //         MaterialPageRoute(
+  //           builder: (context) => const HomePage(),
+  //         ),
+  //       );
+  //     }
+  //   });
+  // }
+
+  // @override
+  // void initState() {
+  //   _listenForUser();
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +58,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
             scale: 0.1,
             fit: BoxFit.fitWidth,
             image: AssetImage(
-              "assets/images/assembly.png", // TODO change asset path
+              "images/assembly.png",
             ),
           ),
         ),
@@ -39,7 +67,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              "assets/images/logo.png", // TODO: remove assets when compiling or web
+              "images/logo.png",
               height: 200.0,
               width: 200.0,
             ),
@@ -54,14 +82,6 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
             const SizedBox(
               height: 10,
             ),
-            _loading
-                ? const Text(
-                    "loading, please wait...",
-                    style: TextStyle(
-                      fontStyle: FontStyle.italic,
-                    ),
-                  )
-                : const SizedBox(),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: _loading
@@ -96,6 +116,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
                           SizedBox(
                             width: 300.0,
                             child: TextFormField(
+                              keyboardType: TextInputType.emailAddress,
                               controller: _emailController,
                               decoration: const InputDecoration(
                                 label: Text("Email"),
@@ -106,6 +127,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
                           SizedBox(
                             width: 300.0,
                             child: TextFormField(
+                              obscureText: true,
                               controller: _passwordController,
                               decoration: const InputDecoration(
                                 icon: Icon(Icons.lock),
@@ -113,27 +135,51 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
                               ),
                             ),
                           ),
+                          errorText.isNotEmpty
+                              ? Text(
+                                  errorText,
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                  ),
+                                )
+                              : SizedBox(),
                           Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: MaterialButton(
-                              onPressed: () {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                    builder: (context) => const HomePage(),
-                                  ),
-                                );
-                              },
+                              onPressed: _loading
+                                  ? null
+                                  : () async {
+                                      try {
+                                        setState(() {
+                                          _loading = true;
+                                        });
+                                        UserCredential userCredential =
+                                            await FirebaseAuth.instance
+                                                .signInWithEmailAndPassword(
+                                          email: _emailController.text,
+                                          password: _passwordController.text,
+                                        );
+                                      } on FirebaseAuthException catch (e) {
+                                        setState(() {
+                                          errorText =
+                                              "Invalid email or Password";
+                                          _loading = false;
+                                        });
+                                      }
+                                    },
                               color: Colors.green,
-                              child: const Padding(
+                              child: Padding(
                                 padding: EdgeInsets.all(8.0),
-                                child: Text(
-                                  "Login",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                                child: _loading
+                                    ? CircularProgressIndicator()
+                                    : Text(
+                                        "Login",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                               ),
                             ),
                           ),

@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
+import '../widgets/reportsListTile.dart';
 
 class ResultsPage extends StatefulWidget {
   const ResultsPage({super.key});
@@ -17,6 +20,8 @@ class _ResultsPageState extends State<ResultsPage> {
     fontSize: 16,
     fontWeight: FontWeight.w600,
   );
+  final reportsRef =
+      FirebaseFirestore.instance.collection("reports").snapshots();
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -109,102 +114,38 @@ class _ResultsPageState extends State<ResultsPage> {
         Flexible(
           child: Padding(
             padding: const EdgeInsets.all(12),
-            child: ListView(
-              children: List.generate(
-                20,
-                (index) => Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: 70,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 15),
-                    alignment: Alignment.center,
-                    width: double.maxFinite,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                          width: 200,
-                          child: Row(
-                            children: [
-                              Container(
-                                height: 40,
-                                width: 40,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Colors.grey.withOpacity(0.4),
-                                ),
-                                alignment: Alignment.center,
-                                child: Icon(Icons.person),
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Ahmad Isah",
-                                    style: _tableContentStyle,
-                                  ),
-                                  Text(
-                                    "09876545678",
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: Colors.grey.withOpacity(0.5),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        Text(
-                          "Chedi",
-                          style: _tableContentStyle,
-                        ),
-                        Text(
-                          "Alkantara I",
-                          style: _tableContentStyle,
-                        ),
-                        SizedBox(
-                          width: 300,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                "600",
-                                style: _tableContentStyle,
-                              ),
-                              Text(
-                                "300",
-                                style: _tableContentStyle,
-                              ),
-                              Text(
-                                "100",
-                                style: _tableContentStyle,
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          width: 150,
-                          child: Icon(
-                            Icons.arrow_right,
-                            size: 40,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+            child: StreamBuilder(
+              stream: reportsRef,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: Text("An error has occured"),
+                  );
+                }
+                return ListView(
+                  children: snapshot.data!.docs.map(
+                    (e) {
+                      Map<String, dynamic> data = e.data();
+                      return ReportListTile(
+                        agentName: data['agentName'],
+                        agentEmail: data['agentEmail'],
+                        agentNumber: data['agentNumber'],
+                        ward: data['ward'],
+                        pollingUnit: data['polling_unit'],
+                        apc: data['apc'],
+                        pdp: data['pdp'],
+                        nnpp: data['nnpp'],
+                        image: data['image'],
+                      );
+                    },
+                  ).toList(),
+                );
+              },
             ),
           ),
         ),

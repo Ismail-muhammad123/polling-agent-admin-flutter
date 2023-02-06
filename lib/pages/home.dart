@@ -5,6 +5,7 @@ import 'package:admin/pages/settings.dart';
 import 'package:admin/pages/splashScreen.dart';
 import 'package:admin/pages/units.dart';
 import 'package:admin/pages/wards.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../widgets/homeCards.dart';
 import '../widgets/menuItems.dart';
@@ -50,7 +51,7 @@ class HomePageState extends State<HomePage> {
                       opacity: 0.2,
                       scale: 0.1,
                       image: AssetImage(
-                        "assets/images/assembly.png", // TODO change asset path
+                        "images/assembly.png",
                       ),
                     ),
                   ),
@@ -86,7 +87,7 @@ class HomePageState extends State<HomePage> {
                         _currentTabIndex = 0;
                       }),
                       child: Image.asset(
-                        "assets/images/logo.png", // TODO: remove assets when compiling or web
+                        "images/logo.png",
                         height: 50,
                         width: 50,
                       ),
@@ -181,11 +182,7 @@ class HomePageState extends State<HomePage> {
                       ),
                     ).then(
                       (value) => value
-                          ? Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (context) => const SplashScreenPage(),
-                              ),
-                            )
+                          ? FirebaseAuth.instance.signOut()
                           : setState(() {}),
                     ),
                     child: const SideMenuItem(
@@ -213,6 +210,28 @@ class HomeMainTab extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Spacer(),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    height: 30,
+                    width: 30,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Icon(Icons.person),
+                  ),
+                ),
+                Text(FirebaseAuth.instance.currentUser?.email ?? ""),
+              ],
+            ),
+          ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
