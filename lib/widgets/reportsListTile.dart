@@ -1,10 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
+import 'package:url_launcher/url_launcher.dart';
 
-
-import 'package:url_launcher/url_launcher.dart';class ReportListTile extends StatelessWidget {
-  final String agentName, agentEmail, agentNumber, ward, pollingUnit, image;
+class ReportListTile extends StatelessWidget {
+  final String agentName,
+      agentEmail,
+      agentNumber,
+      ward,
+      pollingUnit,
+      image,
+      agentId;
   final double pdp, apc, nnpp;
 
   final TextStyle tableContentStyle = const TextStyle(
@@ -13,6 +20,7 @@ import 'package:url_launcher/url_launcher.dart';class ReportListTile extends Sta
   );
 
   const ReportListTile({
+    required this.agentId,
     required this.agentName,
     required this.agentEmail,
     required this.agentNumber,
@@ -43,15 +51,15 @@ import 'package:url_launcher/url_launcher.dart';class ReportListTile extends Sta
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: 200,
+              width: 240,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    height: 40,
-                    width: 40,
+                    height: 30,
+                    width: 30,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(15),
                       color: Colors.grey.withOpacity(0.4),
                     ),
                     alignment: Alignment.center,
@@ -60,33 +68,84 @@ import 'package:url_launcher/url_launcher.dart';class ReportListTile extends Sta
                   const SizedBox(
                     width: 10,
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        agentName,
-                        style: tableContentStyle,
-                      ),
-                      Text(
-                        agentNumber,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey.withOpacity(0.5),
-                        ),
-                      ),
-                    ],
-                  ),
+                  StreamBuilder(
+                      stream: FirebaseFirestore.instance
+                          .collection('Profile')
+                          .where("email", isEqualTo: agentEmail)
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        }
+                        if (!snapshot.hasData) {
+                          return const Text("An error has occured");
+                        }
+                        if (snapshot.data!.docs.isEmpty) {
+                          return Text("Not Available");
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              snapshot.data!.docs.first.data()['full_name'],
+                              style: tableContentStyle,
+                            ),
+                            Text(
+                              snapshot.data!.docs.first.data()['phone_number'],
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey.withOpacity(0.5),
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                 ],
               ),
             ),
-            Text(
-              ward,
-              style: tableContentStyle,
+            FutureBuilder(
+              future: FirebaseFirestore.instance
+                  .collection("Wards")
+                  .doc(ward)
+                  .get(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                }
+                if (!snapshot.hasData) {
+                  return const Text("An error has occured");
+                }
+                if (!snapshot.data!.exists) {
+                  return Text("Invalid Ward");
+                }
+                return Text(
+                  snapshot.data!.data()!['name'],
+                  style: tableContentStyle,
+                );
+              },
             ),
-            Text(
-              pollingUnit,
-              style: tableContentStyle,
+            FutureBuilder(
+              future: FirebaseFirestore.instance
+                  .collection("polling_units")
+                  .doc(pollingUnit)
+                  .get(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                }
+                if (!snapshot.hasData) {
+                  return const Text("An error has occured");
+                }
+                if (!snapshot.data!.exists) {
+                  return Text("Invalid Polling Unit");
+                }
+                return Text(
+                  snapshot.data!.data()!['name'],
+                  style: tableContentStyle,
+                );
+              },
             ),
             SizedBox(
               width: 300,

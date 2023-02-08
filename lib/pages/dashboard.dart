@@ -230,7 +230,7 @@ class _DashboardState extends State<Dashboard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     SizedBox(
-                      width: 200,
+                      width: 240,
                       child: Text(
                         "Agent Name",
                         style: _tableHeadingStyle,
@@ -310,6 +310,7 @@ class _DashboardState extends State<Dashboard> {
                         (e) {
                           Map<String, dynamic> data = e.data();
                           return ReportListTile(
+                            agentId: data['agentId'],
                             agentName: data['agentName'],
                             agentEmail: data['agentEmail'],
                             agentNumber: data['agentNumber'],
