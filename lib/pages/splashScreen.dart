@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:admin/pages/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SplashScreenPage extends StatefulWidget {
   const SplashScreenPage({super.key});
@@ -22,31 +25,21 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
     super.dispose();
   }
 
+  @override
+  void initState() {
+    window.onKeyData = (final keyData) {
+      if (keyData.logical == LogicalKeyboardKey.enter.keyId) {
+        _login();
+        return true;
+      }
+
+      /// Let event pass to other focses if it is not the key we looking for
+      return false;
+    };
+    super.initState();
+  }
+
   FirebaseAuth auth = FirebaseAuth.instance;
-
-  _login() async {}
-
-  // _listenForUser() async {
-  //   FirebaseAuth.instance.idTokenChanges().listen((User? user) {
-  //     if (user == null) {
-  //       setState(() {
-  //         _loading = false;
-  //       });
-  //     } else {
-  //       Navigator.of(context).pushReplacement(
-  //         MaterialPageRoute(
-  //           builder: (context) => const HomePage(),
-  //         ),
-  //       );
-  //     }
-  //   });
-  // }
-
-  // @override
-  // void initState() {
-  //   _listenForUser();
-  //   super.initState();
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -146,33 +139,13 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
                           Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: MaterialButton(
-                              onPressed: _loading
-                                  ? null
-                                  : () async {
-                                      try {
-                                        setState(() {
-                                          _loading = true;
-                                        });
-                                        UserCredential userCredential =
-                                            await FirebaseAuth.instance
-                                                .signInWithEmailAndPassword(
-                                          email: _emailController.text,
-                                          password: _passwordController.text,
-                                        );
-                                      } on FirebaseAuthException catch (e) {
-                                        setState(() {
-                                          errorText =
-                                              "Invalid email or Password";
-                                          _loading = false;
-                                        });
-                                      }
-                                    },
+                              onPressed: _loading ? null : _login,
                               color: Colors.green,
                               child: Padding(
-                                padding: EdgeInsets.all(8.0),
+                                padding: const EdgeInsets.all(8.0),
                                 child: _loading
-                                    ? CircularProgressIndicator()
-                                    : Text(
+                                    ? const CircularProgressIndicator()
+                                    : const Text(
                                         "Login",
                                         style: TextStyle(
                                           fontSize: 20,
@@ -191,5 +164,23 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
         ),
       ),
     );
+  }
+
+  _login() async {
+    setState(() {
+      _loading = true;
+    });
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        errorText = "Invalid email or Password";
+        _loading = false;
+      });
+    }
   }
 }
