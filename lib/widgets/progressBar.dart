@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ProgressBarWidget extends StatelessWidget {
   final String label;
@@ -31,8 +32,8 @@ class ProgressBarWidget extends StatelessWidget {
                 ),
               ),
               Text(
-                "$value of $maxValue", // TODO format the numbers
-                style: TextStyle(
+                "${NumberFormat('###,###,###,###').format(value)} of ${NumberFormat('###,###,###,###').format(maxValue)}", // TODO format the numbers
+                style: const TextStyle(
                   fontSize: 12,
                   color: Colors.grey,
                 ),

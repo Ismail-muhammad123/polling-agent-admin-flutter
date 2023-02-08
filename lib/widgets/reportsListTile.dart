@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
@@ -154,15 +155,15 @@ class ReportListTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    pdp.toString(),
+                    NumberFormat('###,###,###,###').format(pdp),
                     style: tableContentStyle,
                   ),
                   Text(
-                    apc.toString(),
+                    NumberFormat('###,###,###,###').format(apc),
                     style: tableContentStyle,
                   ),
                   Text(
-                    nnpp.toString(),
+                    NumberFormat('###,###,###,###').format(nnpp),
                     style: tableContentStyle,
                   ),
                 ],
