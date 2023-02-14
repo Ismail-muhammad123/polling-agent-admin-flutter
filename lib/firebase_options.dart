@@ -31,7 +31,20 @@ class DefaultFirebaseOptions {
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
+      case TargetPlatform.windows:
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
+      case TargetPlatform.linux:
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for linux - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
@@ -40,24 +53,12 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDn7GgVR3sjYtjEMwbFcBo7rDEmdFliRt4',
-    appId: '1:722939163961:web:15e1c953a94779f2b524e8',
-    messagingSenderId: '722939163961',
-    projectId: 'polling-reporting-system',
-    authDomain: 'polling-reporting-system.firebaseapp.com',
-    databaseURL: 'https://polling-reporting-system-default-rtdb.firebaseio.com',
-    storageBucket: 'polling-reporting-system.appspot.com',
-    measurementId: 'G-3GV1F1BD91',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBXlUh1Jg-r0wAn7ZpGCKmU6-FevgwjXag',
-    appId: '1:722939163961:ios:7c4d2e68b5d328e1b524e8',
-    messagingSenderId: '722939163961',
-    projectId: 'polling-reporting-system',
-    databaseURL: 'https://polling-reporting-system-default-rtdb.firebaseio.com',
-    storageBucket: 'polling-reporting-system.appspot.com',
-    iosClientId: '722939163961-serhul5oidkkgk3qpgbrmmo75lekrdp6.apps.googleusercontent.com',
-    iosBundleId: 'com.example.admin',
+    apiKey: 'AIzaSyCQnXaOsspN8g3-jabDHqNwJROJb5Lz_C0',
+    appId: '1:630416656653:web:c25d580c32ac341d820844',
+    messagingSenderId: '630416656653',
+    projectId: 'polling-monitor',
+    authDomain: 'polling-monitor.firebaseapp.com',
+    storageBucket: 'polling-monitor.appspot.com',
+    measurementId: 'G-FEY9L6MN3W',
   );
 }

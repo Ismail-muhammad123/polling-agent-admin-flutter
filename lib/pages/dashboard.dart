@@ -6,6 +6,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../data/radialChartData.dart';
 import '../widgets/progressBar.dart';
+import '../widgets/raportTableHeader.dart';
 import '../widgets/reportsListTile.dart';
 
 class Dashboard extends StatefulWidget {
@@ -16,10 +17,6 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  final TextStyle _tableHeadingStyle = const TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 16,
-  );
   final reportsRef =
       FirebaseFirestore.instance.collection("reports").snapshots();
 
@@ -72,47 +69,51 @@ class _DashboardState extends State<Dashboard> {
                       child: StreamBuilder(
                         stream: reportsRef,
                         builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                            return Container();
-                          }
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const Center(
                               child: CircularProgressIndicator(),
                             );
                           }
+                          if (!snapshot.hasData) {
+                            return Container();
+                          }
+                          var pdp = snapshot.data!.docs.fold<double>(
+                              0,
+                              (previousValue, element) =>
+                                  previousValue + element.data()["pdp"]);
+                          var apc = snapshot.data!.docs.fold<double>(
+                              0,
+                              (previousValue, element) =>
+                                  previousValue + element.data()["apc"]);
+                          var nnpp = snapshot.data!.docs.fold<double>(
+                              0,
+                              (previousValue, element) =>
+                                  previousValue + element.data()["nnpp"]);
+                          var total = (apc + pdp + nnpp) * 1.5;
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               ProgressBarWidget(
                                 label: "ENGR. YUSUF ABDULLAHI AHMAD",
-                                maxValue: 123450,
-                                value: snapshot.data!.docs.fold<double>(
-                                    0,
-                                    (previousValue, element) =>
-                                        previousValue + element.data()["pdp"]),
+                                maxValue: total,
+                                value: pdp,
                                 backgroundColor:
                                     const Color.fromARGB(255, 255, 172, 172),
                                 progressColor: Colors.green,
                               ),
                               ProgressBarWidget(
                                 label: "ENGR. SAGIR KOKI",
-                                maxValue: 123450,
-                                value: snapshot.data!.docs.fold<double>(
-                                    0,
-                                    (previousValue, element) =>
-                                        previousValue + element.data()["apc"]),
+                                maxValue: total,
+                                value: apc,
                                 backgroundColor:
                                     const Color.fromARGB(255, 128, 255, 212),
                                 progressColor: Colors.red,
                               ),
                               ProgressBarWidget(
                                 label: "MUNTARI ISHAQ",
-                                maxValue: 123450,
-                                value: snapshot.data!.docs.fold<double>(
-                                    0,
-                                    (previousValue, element) =>
-                                        previousValue + element.data()["nnpp"]),
+                                maxValue: total,
+                                value: nnpp,
                                 backgroundColor:
                                     const Color.fromARGB(255, 218, 218, 218),
                                 progressColor: Colors.blue,
@@ -215,82 +216,7 @@ class _DashboardState extends State<Dashboard> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                height: 80,
-                width: double.maxFinite,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 240,
-                      child: Text(
-                        "Agent Name",
-                        style: _tableHeadingStyle,
-                      ),
-                    ),
-                    Text(
-                      "Ward",
-                      style: _tableHeadingStyle,
-                    ),
-                    Text(
-                      "Polling Unit",
-                      style: _tableHeadingStyle,
-                    ),
-                    SizedBox(
-                      width: 300,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Text(
-                            "No. Of votes Casted",
-                            style:
-                                _tableHeadingStyle.copyWith(color: Colors.blue),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "PDP",
-                                style: _tableHeadingStyle.copyWith(
-                                  color: Colors.green,
-                                ),
-                              ),
-                              Text(
-                                "APC",
-                                style: _tableHeadingStyle.copyWith(
-                                  color: Colors.red,
-                                ),
-                              ),
-                              Text(
-                                "NNPP",
-                                style: _tableHeadingStyle.copyWith(
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      width: 150,
-                      child: Text(
-                        "Result Sheet".toUpperCase(),
-                        style: _tableHeadingStyle,
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
+            ResultTableHeader(),
             Padding(
               padding: const EdgeInsets.all(10),
               child: ConstrainedBox(
@@ -310,10 +236,11 @@ class _DashboardState extends State<Dashboard> {
                         (e) {
                           Map<String, dynamic> data = e.data();
                           return ReportListTile(
-                            agentId: data['agentId'],
-                            agentName: data['agentName'],
+                            // agentId: data['agentId'],
+                            // agentName: data['agentName'],
                             agentEmail: data['agentEmail'],
-                            agentNumber: data['agentNumber'],
+                            // agentNumber: data['agentNumber
+                            violence: data['violence'] ?? false,
                             ward: data['ward'],
                             pollingUnit: data['polling_unit'],
                             apc: data['apc'],

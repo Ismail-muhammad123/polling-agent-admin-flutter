@@ -6,14 +6,9 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ReportListTile extends StatelessWidget {
-  final String agentName,
-      agentEmail,
-      agentNumber,
-      ward,
-      pollingUnit,
-      image,
-      agentId;
+  final String agentEmail, ward, pollingUnit, image;
   final double pdp, apc, nnpp;
+  final bool violence;
 
   final TextStyle tableContentStyle = const TextStyle(
     fontSize: 16,
@@ -21,10 +16,11 @@ class ReportListTile extends StatelessWidget {
   );
 
   const ReportListTile({
-    required this.agentId,
-    required this.agentName,
+    // required this.agentId,
+    // required this.agentName,
     required this.agentEmail,
-    required this.agentNumber,
+    // required this.agentNumber,
+    this.violence = false,
     required this.ward,
     required this.pollingUnit,
     required this.image,
@@ -83,7 +79,7 @@ class ReportListTile extends StatelessWidget {
                           return const Text("An error has occured");
                         }
                         if (snapshot.data!.docs.isEmpty) {
-                          return Text("Not Available");
+                          return const Text("Not Available");
                         }
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,7 +115,7 @@ class ReportListTile extends StatelessWidget {
                   return const Text("An error has occured");
                 }
                 if (!snapshot.data!.exists) {
-                  return Text("Invalid Ward");
+                  return const Text("Invalid Ward");
                 }
                 return Text(
                   snapshot.data!.data()!['name'],
@@ -140,7 +136,7 @@ class ReportListTile extends StatelessWidget {
                   return const Text("An error has occured");
                 }
                 if (!snapshot.data!.exists) {
-                  return Text("Invalid Polling Unit");
+                  return const Text("Invalid Polling Unit");
                 }
                 return Text(
                   snapshot.data!.data()!['name'],
@@ -169,25 +165,35 @@ class ReportListTile extends StatelessWidget {
                 ],
               ),
             ),
+            Icon(
+              violence ? Icons.cancel : Icons.check,
+              color: violence ? Colors.red : Colors.green,
+            ),
             SizedBox(
               width: 150,
               child: GestureDetector(
-                onTap: () async {
-                  var url = await FirebaseStorage.instance
-                      .ref()
-                      .child(image)
-                      .getDownloadURL();
-                  // print(url);
-                  if (!await launchUrl(Uri.parse(url))) {
-                    throw Exception('Could not launch $url');
-                  }
-                },
+                onTap: image.isEmpty
+                    ? null
+                    : () async {
+                        var url = await FirebaseStorage.instance
+                            .ref()
+                            .child(image)
+                            .getDownloadURL();
+                        // print(url);
+                        if (!await launchUrl(Uri.parse(url))) {
+                          throw Exception('Could not launch $url');
+                        }
+                      },
                 child: Row(
-                  children: const [
-                    Icon(Icons.image),
+                  children: [
+                    Icon(
+                      Icons.image,
+                      color: image.isEmpty ? Colors.grey : Colors.black,
+                    ),
                     Icon(
                       Icons.arrow_right,
                       size: 40,
+                      color: image.isEmpty ? Colors.grey : Colors.black,
                     ),
                   ],
                 ),

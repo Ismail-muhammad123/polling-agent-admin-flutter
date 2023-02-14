@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 
 class AgentListWidget extends StatefulWidget {
   final String fullName, phone, assignedWard, assignedPollingUnit, email, id;
@@ -20,7 +20,6 @@ class AgentListWidget extends StatefulWidget {
   @override
   State<AgentListWidget> createState() => _AgentListWidgetState();
 }
-
 
 class _AgentListWidgetState extends State<AgentListWidget> {
   final TextEditingController _nameController = TextEditingController();
@@ -248,7 +247,9 @@ class _AgentListWidgetState extends State<AgentListWidget> {
                         child: StreamBuilder(
                           stream: FirebaseFirestore.instance
                               .collection('polling_units')
-                              // .where('ward', isEqualTo: widget.assignedWard)
+                              .where('assigned_agent',
+                                  isEqualTo:
+                                      FirebaseAuth.instance.currentUser!.email)
                               .snapshots(),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
@@ -263,54 +264,17 @@ class _AgentListWidgetState extends State<AgentListWidget> {
                               );
                             }
                             if (snapshot.data!.docs.isEmpty) {
-                              return const Text("No Polling vaialable");
+                              return const Text("No Polling Assigned");
                             }
-                            return DropdownButtonFormField(
-                              hint: widget.assignedPollingUnit.isEmpty
-                                  ? const Text("Select Polling Unit")
-                                  : null,
-                              value: widget.assignedPollingUnit.isNotEmpty
-                                  ? widget.assignedPollingUnit
-                                  : null,
-                              items: snapshot.data!.docs
-                                  // .where(
-                                  //   (element) =>
-                                  //       element.data()['ward'] ==
-                                  //       widget.assignedWard,
-                                  // )
-                                  .map(
-                                    (e) => DropdownMenuItem(
-                                      value: e.id,
-                                      enabled: e.data()['ward'] ==
-                                          widget.assignedWard,
-                                      child: Text(
-                                        e.data()['name'],
-                                        style: TextStyle(
-                                          color: _dropDownEnabled
-                                              ? e.data()['ward'] ==
-                                                      widget.assignedWard
-                                                  ? Colors.black
-                                                  : Colors.red
-                                              : null,
-                                          decoration: e.data()['ward'] ==
-                                                  widget.assignedWard
-                                              ? null
-                                              : TextDecoration.lineThrough,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                              onChanged: _dropDownEnabled
-                                  ? (value) async {
-                                      await FirebaseFirestore.instance
-                                          .collection('Profile')
-                                          .doc(widget.id)
-                                          .update({
-                                        "assigned_polling_unit": value,
-                                      });
-                                    }
-                                  : null,
+                            return SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ...snapshot.data!.docs.map(
+                                    (e) => Text("*${e.data()['name']}"),
+                                  ),
+                                ],
+                              ),
                             );
                           },
                         ),

@@ -111,7 +111,7 @@ class _PolingUnitsPageState extends State<PolingUnitsPage> {
                                           .snapshots(),
                                       builder: (context, snapshot) {
                                         if (!snapshot.hasData) {
-                                          return Text("...");
+                                          return const Text("...");
                                         }
                                         return Text(
                                             snapshot.data!.data()!['name']);
@@ -119,25 +119,8 @@ class _PolingUnitsPageState extends State<PolingUnitsPage> {
                                     ),
                                   ),
                                   DataCell(
-                                    StreamBuilder(
-                                      stream: FirebaseFirestore.instance
-                                          .collection('Profile')
-                                          .where(
-                                            'assigned_polling_unit',
-                                            isEqualTo: e.id,
-                                          )
-                                          .snapshots(),
-                                      builder: (context, snapshot) {
-                                        if (!snapshot.hasData) {
-                                          return const Text("...");
-                                        }
-                                        if (snapshot.data!.docs.isEmpty) {
-                                          return const Text("-");
-                                        }
-                                        return Text(snapshot.data!.docs.first
-                                            .data()['full_name']);
-                                      },
-                                    ),
+                                    Text(e.data()['assigned_agent'] ??
+                                        "Not assigned"),
                                   ),
                                   DataCell(
                                     IconButton(
