@@ -8,6 +8,7 @@ import '../data/radialChartData.dart';
 import '../widgets/progressBar.dart';
 import '../widgets/raportTableHeader.dart';
 import '../widgets/reportsListTile.dart';
+import '../widgets/result_list_table.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -216,7 +217,6 @@ class _DashboardState extends State<Dashboard> {
                 ],
               ),
             ),
-            ResultTableHeader(),
             Padding(
               padding: const EdgeInsets.all(10),
               child: ConstrainedBox(
@@ -231,25 +231,9 @@ class _DashboardState extends State<Dashboard> {
                     if (!snapshot.hasData) {
                       return const Text("An error has occured");
                     }
-                    return ListView(
-                      children: snapshot.data!.docs.map(
-                        (e) {
-                          Map<String, dynamic> data = e.data();
-                          return ReportListTile(
-                            // agentId: data['agentId'],
-                            // agentName: data['agentName'],
-                            agentEmail: data['agentEmail'],
-                            // agentNumber: data['agentNumber
-                            violence: data['violence'] ?? false,
-                            ward: data['ward'],
-                            pollingUnit: data['polling_unit'],
-                            apc: data['apc'],
-                            pdp: data['pdp'],
-                            nnpp: data['nnpp'],
-                            image: data['image'],
-                          );
-                        },
-                      ).toList(),
+                    return ResultsDataTable(
+                      dataList:
+                          snapshot.data!.docs.map((e) => e.data()).toList(),
                     );
                   },
                 ),

@@ -102,7 +102,7 @@ class ReportListTile extends StatelessWidget {
                 ],
               ),
             ),
-            FutureBuilder(
+            ward.isEmpty? Text("-") : FutureBuilder(
               future: FirebaseFirestore.instance
                   .collection("Wards")
                   .doc(ward)
@@ -123,6 +123,7 @@ class ReportListTile extends StatelessWidget {
                 );
               },
             ),
+            pollingUnit.isEmpty? Text("-"):
             FutureBuilder(
               future: FirebaseFirestore.instance
                   .collection("polling_units")

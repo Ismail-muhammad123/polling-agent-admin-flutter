@@ -18,6 +18,9 @@ class _PolingUnitsPageState extends State<PolingUnitsPage> {
   final _pollingUnitsStream =
       FirebaseFirestore.instance.collection("polling_units").snapshots();
 
+  String filter_agent_email = "";
+  String filter_ward_id = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,6 +48,104 @@ class _PolingUnitsPageState extends State<PolingUnitsPage> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  // Spacer(),
+                  SizedBox(
+                    width: 100,
+                  ),
+                  Text(
+                    "Filter: ".toUpperCase(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 50,
+                  ),
+                  Flexible(
+                    child: StreamBuilder(
+                      stream: FirebaseFirestore.instance
+                          .collection('Wards')
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const Text("...");
+                        }
+                        //   return Text(
+                        //       snapshot.data!.data()!['name']);
+                        // },
+                        return DropdownButtonFormField(
+                          hint: const Text("Select Ward"),
+                          // value: filter_ward_id,
+                          items: [
+                            ...snapshot.data!.docs.map(
+                              (e) => DropdownMenuItem(
+                                value: e.id,
+                                child: Text(e.data()['name']),
+                              ),
+                            )
+                          ],
+                          onChanged: (val) => setState(
+                            () {
+                              filter_ward_id = val as String;
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 100,
+                  ),
+                  Flexible(
+                    child: StreamBuilder(
+                      stream: FirebaseFirestore.instance
+                          .collection('Profile')
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const Text("...");
+                        }
+                        return DropdownButtonFormField(
+                          hint: const Text("Select Agent"),
+                          // value: filter_ward_id,
+                          items: [
+                            ...snapshot.data!.docs.map(
+                              (e) => DropdownMenuItem(
+                                value: e.data()['email'],
+                                child: Text(e.data()['email']),
+                              ),
+                            )
+                          ],
+                          onChanged: (val) => setState(
+                            () {
+                              filter_agent_email = val as String;
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  MaterialButton(
+                    onPressed: () => setState(
+                      () {
+                        filter_agent_email = "";
+                        filter_ward_id = "";
+                      },
+                    ),
+                    color: Colors.grey,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: const [
+                          Icon(Icons.clear),
+                          SizedBox(
+                            width: 12.0,
+                          ),
+                          Text("Clear Filter"),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -68,6 +169,21 @@ class _PolingUnitsPageState extends State<PolingUnitsPage> {
                         return const Center(
                           child: Text("Error"),
                         );
+                      }
+
+                      var data = snapshot.data!.docs;
+                      if (filter_agent_email.isNotEmpty) {
+                        data = data
+                            .where((element) =>
+                                element.data()['assigned_agent'] ==
+                                filter_agent_email)
+                            .toList();
+                      }
+                      if (filter_ward_id.isNotEmpty) {
+                        data = data
+                            .where((element) =>
+                                element.data()['ward'] == filter_ward_id)
+                            .toList();
                       }
                       return DataTable(
                         columns: [
@@ -96,7 +212,7 @@ class _PolingUnitsPageState extends State<PolingUnitsPage> {
                             ),
                           ),
                         ],
-                        rows: snapshot.data!.docs
+                        rows: data
                             .map(
                               (e) => DataRow(
                                 cells: [
