@@ -25,8 +25,10 @@ class _ResultsPageState extends State<ResultsPage> {
     fontSize: 16,
     fontWeight: FontWeight.w600,
   );
-  final reportsRef =
-      FirebaseFirestore.instance.collection("reports").snapshots();
+  final reportsRef = FirebaseFirestore.instance
+      .collection("reports")
+      .orderBy("uploaded_at")
+      .snapshots();
   @override
   Widget build(BuildContext context) {
     return Padding(

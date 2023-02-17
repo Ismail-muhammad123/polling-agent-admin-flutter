@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
 class ResultsDataTable extends StatelessWidget {
   final List<Map<String, dynamic>> dataList;
   const ResultsDataTable({
@@ -26,7 +25,7 @@ class ResultsDataTable extends StatelessWidget {
         DataColumn(label: Text("Plling Unit")),
         DataColumn(
             label: Text(
-          "PPD",
+          "PDP",
           style: _tableHeadingStyle.copyWith(color: Colors.red),
         )),
         DataColumn(
@@ -39,6 +38,7 @@ class ResultsDataTable extends StatelessWidget {
           "NNPP",
           style: _tableHeadingStyle.copyWith(color: Colors.blue),
         )),
+        DataColumn(label: Text("Time")),
         DataColumn(label: Text("No Violence")),
         DataColumn(label: Text("Image")),
       ],
@@ -137,6 +137,15 @@ class ResultsDataTable extends StatelessWidget {
                   Text(
                     NumberFormat('###,###,###,###').format(e['nnpp']),
                     // style: _tableContentStyle,
+                  ),
+                ),
+                DataCell(
+                  Text(
+                    e['uploaded_at'] != null && e['uploaded_time'] != ""
+                        ? DateFormat("dd/MM/yyyy hh:mm a").format(
+                            (e['uploaded_at'] as Timestamp).toDate(),
+                          )
+                        : "-",
                   ),
                 ),
                 DataCell(

@@ -100,19 +100,19 @@ class _DashboardState extends State<Dashboard> {
                                 maxValue: total,
                                 value: pdp,
                                 backgroundColor:
-                                    const Color.fromARGB(255, 255, 172, 172),
-                                progressColor: Colors.green,
-                              ),
-                              ProgressBarWidget(
-                                label: "ENGR. SAGIR KOKI",
-                                maxValue: total,
-                                value: apc,
-                                backgroundColor:
-                                    const Color.fromARGB(255, 128, 255, 212),
+                                    const Color.fromARGB(255, 218, 218, 218),
                                 progressColor: Colors.red,
                               ),
                               ProgressBarWidget(
                                 label: "MUNTARI ISHAQ",
+                                maxValue: total,
+                                value: apc,
+                                backgroundColor:
+                                    const Color.fromARGB(255, 218, 218, 218),
+                                progressColor: Colors.green,
+                              ),
+                              ProgressBarWidget(
+                                label: "ENGR. SAGIR KOKI",
                                 maxValue: total,
                                 value: nnpp,
                                 backgroundColor:
@@ -152,39 +152,41 @@ class _DashboardState extends State<Dashboard> {
                               child: Text("An error has occured"),
                             );
                           }
+                          var pdp = snapshot.data!.docs.fold<double>(
+                              0,
+                              (previousValue, element) =>
+                                  previousValue + element.data()["pdp"]);
+                          var apc = snapshot.data!.docs.fold<double>(
+                              0,
+                              (previousValue, element) =>
+                                  previousValue + element.data()["apc"]);
+                          var nnpp = snapshot.data!.docs.fold<double>(
+                              0,
+                              (previousValue, element) =>
+                                  previousValue + element.data()["nnpp"]);
+                          var total = (apc + pdp + nnpp) * 1.5;
                           return SfCircularChart(
                             title: ChartTitle(
                                 text: 'TOTAL NUMBER OF VOTES CASTED'),
                             legend: Legend(isVisible: true),
                             series: <RadialBarSeries<PieData, String>>[
                               RadialBarSeries<PieData, String>(
+                                trackBorderColor: Colors.white,
                                 dataSource: [
                                   PieData(
                                     "PDP",
-                                    snapshot.data!.docs.fold<double>(
-                                      0,
-                                      (previousValue, element) =>
-                                          previousValue + element.data()["pdp"],
-                                    ),
+                                    pdp,
                                   ),
                                   PieData(
                                     "APC",
-                                    snapshot.data!.docs.fold<double>(
-                                      0,
-                                      (previousValue, element) =>
-                                          previousValue + element.data()["apc"],
-                                    ),
+                                    apc,
                                   ),
                                   PieData(
                                     "NNPP",
-                                    snapshot.data!.docs.fold<double>(
-                                      0,
-                                      (previousValue, element) =>
-                                          previousValue +
-                                          element.data()["nnpp"],
-                                    ),
+                                    nnpp,
                                   ),
                                 ],
+                                maximumValue: total,
                                 trackOpacity: 0.1,
                                 trackColor: Colors.grey,
                                 strokeColor: Colors.blue,
@@ -231,9 +233,11 @@ class _DashboardState extends State<Dashboard> {
                     if (!snapshot.hasData) {
                       return const Text("An error has occured");
                     }
-                    return ResultsDataTable(
-                      dataList:
-                          snapshot.data!.docs.map((e) => e.data()).toList(),
+                    return SingleChildScrollView(
+                      child: ResultsDataTable(
+                        dataList:
+                            snapshot.data!.docs.map((e) => e.data()).toList(),
+                      ),
                     );
                   },
                 ),
