@@ -22,7 +22,7 @@ class ResultsDataTable extends StatelessWidget {
       columns: [
         DataColumn(label: Text("Agent Name")),
         DataColumn(label: Text("Ward")),
-        DataColumn(label: Text("Plling Unit")),
+        DataColumn(label: Text("Polling Unit")),
         DataColumn(
             label: Text(
           "PDP",

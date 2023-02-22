@@ -74,9 +74,13 @@ class _PolingUnitsPageState extends State<PolingUnitsPage> {
                         //       snapshot.data!.data()!['name']);
                         // },
                         return DropdownButtonFormField(
-                          hint: const Text("Select Ward"),
-                          // value: filter_ward_id,
+                          // hint: const Text("Select Ward"),
+                          value: filter_ward_id,
                           items: [
+                            const DropdownMenuItem(
+                              value: "",
+                              child: Text("All Wards"),
+                            ),
                             ...snapshot.data!.docs.map(
                               (e) => DropdownMenuItem(
                                 value: e.id,
@@ -106,9 +110,13 @@ class _PolingUnitsPageState extends State<PolingUnitsPage> {
                           return const Text("...");
                         }
                         return DropdownButtonFormField(
-                          hint: const Text("Select Agent"),
-                          // value: filter_ward_id,
+                          // hint: const Text("Select Agent"),
+                          value: filter_agent_email,
                           items: [
+                            const DropdownMenuItem(
+                              value: "",
+                              child: Text("All Agents"),
+                            ),
                             ...snapshot.data!.docs.map(
                               (e) => DropdownMenuItem(
                                 value: e.data()['email'],
@@ -220,19 +228,22 @@ class _PolingUnitsPageState extends State<PolingUnitsPage> {
                                     Text(e.data()['name']),
                                   ),
                                   DataCell(
-                                    StreamBuilder(
-                                      stream: FirebaseFirestore.instance
-                                          .collection('Wards')
-                                          .doc(e.data()['ward'])
-                                          .snapshots(),
-                                      builder: (context, snapshot) {
-                                        if (!snapshot.hasData) {
-                                          return const Text("...");
-                                        }
-                                        return Text(
-                                            snapshot.data!.data()!['name']);
-                                      },
-                                    ),
+                                    e.data()['ward'] != null &&
+                                            e.data()['ward'] != ""
+                                        ? StreamBuilder(
+                                            stream: FirebaseFirestore.instance
+                                                .collection('Wards')
+                                                .doc(e.data()['ward'])
+                                                .snapshots(),
+                                            builder: (context, snapshot) {
+                                              if (!snapshot.hasData) {
+                                                return const Text("...");
+                                              }
+                                              return Text(snapshot.data!
+                                                  .data()!['name']);
+                                            },
+                                          )
+                                        : const Text("not found"),
                                   ),
                                   DataCell(
                                     Text(e.data()['assigned_agent'] ??

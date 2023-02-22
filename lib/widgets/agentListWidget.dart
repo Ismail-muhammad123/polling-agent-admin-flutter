@@ -201,6 +201,11 @@ class _AgentListWidgetState extends State<AgentListWidget> {
                                 child: Text("Error"),
                               );
                             }
+                            if (snapshot.data!.docs.isEmpty) {
+                              return const Center(
+                                child: Text("Not Assigned"),
+                              );
+                            }
                             return DropdownButtonFormField(
                               value: widget.assignedWard.isNotEmpty
                                   ? widget.assignedWard
@@ -281,15 +286,6 @@ class _AgentListWidgetState extends State<AgentListWidget> {
                       ),
                     ],
                   ),
-                  Center(
-                    child: MaterialButton(
-                      onPressed: () => setState(() {
-                        _dropDownEnabled = !_dropDownEnabled;
-                      }),
-                      color: Colors.grey,
-                      child: Icon(_dropDownEnabled ? Icons.check : Icons.edit),
-                    ),
-                  )
                 ],
               ),
             ),
@@ -342,53 +338,19 @@ class _AgentListWidgetState extends State<AgentListWidget> {
                             child: Text("No result is Uploaded yet!"),
                           );
                         }
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text("PDP:"),
-                                Text(snapshot.data!.docs.first['pdp']
-                                    .toString()),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text("APC:"),
-                                Text(snapshot.data!.docs.first['apc']
-                                    .toString()),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text("NNPP:"),
-                                Text(snapshot.data!.docs.first['nnpp']
-                                    .toString()),
-                              ],
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                var url = await FirebaseStorage.instance
-                                    .ref()
-                                    .child(snapshot.data!.docs.first['image'])
-                                    .getDownloadURL();
-                                // print(url);
-                                if (!await launchUrl(Uri.parse(url))) {
-                                  throw Exception('Could not launch $url');
-                                }
-                              },
-                              child: const Text(
-                                "view details",
-                                style: TextStyle(
-                                  color: Colors.blue,
+                        return SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              ...snapshot.data!.docs.map(
+                                (e) => Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                      "APC: ${e.data()['apc']} | PDP: ${e.data()['pdp']} | NNPP: ${e.data()['nnpp']}"),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         );
                       },
                     ),
