@@ -91,7 +91,7 @@ class _DashboardState extends State<Dashboard> {
                               0,
                               (previousValue, element) =>
                                   previousValue + element.data()["nnpp"]);
-                          var total = (apc + pdp + nnpp) * 1.5;
+                          var total = 334478.toDouble();
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -164,7 +164,7 @@ class _DashboardState extends State<Dashboard> {
                               0,
                               (previousValue, element) =>
                                   previousValue + element.data()["nnpp"]);
-                          var total = (apc + pdp + nnpp) * 1.5;
+                          var total = 334478;
                           return SfCircularChart(
                             title: ChartTitle(
                                 text: 'TOTAL NUMBER OF VOTES CASTED'),
@@ -186,7 +186,7 @@ class _DashboardState extends State<Dashboard> {
                                     nnpp,
                                   ),
                                 ],
-                                maximumValue: total,
+                                maximumValue: total.toDouble(),
                                 trackOpacity: 0.1,
                                 trackColor: Colors.grey,
                                 strokeColor: Colors.blue,
