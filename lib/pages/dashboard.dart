@@ -91,13 +91,13 @@ class _DashboardState extends State<Dashboard> {
                               0,
                               (previousValue, element) =>
                                   previousValue + element.data()["nnpp"]);
-                          var total = 334478.toDouble();
+                          var total = 334478;
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               ProgressBarWidget(
                                 label: "ENGR. YUSUF ABDULLAHI AHMAD",
-                                maxValue: total,
+                                maxValue: total.toDouble(),
                                 value: pdp,
                                 backgroundColor:
                                     const Color.fromARGB(255, 218, 218, 218),
@@ -105,7 +105,7 @@ class _DashboardState extends State<Dashboard> {
                               ),
                               ProgressBarWidget(
                                 label: "MUNTARI ISHAQ",
-                                maxValue: total,
+                                maxValue: total.toDouble(),
                                 value: apc,
                                 backgroundColor:
                                     const Color.fromARGB(255, 218, 218, 218),
@@ -113,7 +113,7 @@ class _DashboardState extends State<Dashboard> {
                               ),
                               ProgressBarWidget(
                                 label: "ENGR. SAGIR KOKI",
-                                maxValue: total,
+                                maxValue: total.toDouble(),
                                 value: nnpp,
                                 backgroundColor:
                                     const Color.fromARGB(255, 218, 218, 218),
@@ -194,7 +194,7 @@ class _DashboardState extends State<Dashboard> {
                                 yValueMapper: (PieData data, _) => data.yData,
                                 dataLabelMapper: (PieData data, _) => data.text,
                                 dataLabelSettings:
-                                    const DataLabelSettings(isVisible: false),
+                                    const DataLabelSettings(isVisible: true),
                               ),
                             ],
                           );
